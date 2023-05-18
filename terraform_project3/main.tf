@@ -1,19 +1,4 @@
 
-# Terraform Block (Define the required provider, his source and the provider version)
-terraform {
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 4.0"
-    }
-  }
-}
-# Provider Block (Define the aws Provider and the region)
-provider "aws" {
-  region = var.aws_region
-}
-# Resources Block (configure all the resources)
-
 # Define the vpc with the cidr
 resource "aws_vpc" "project1_vpc" {
   cidr_block       = var.vpc_cidr
@@ -87,6 +72,7 @@ resource "aws_instance" "project1_instance" {
   ami = data.aws_ami.linux_ami.id 
   vpc_security_group_ids = [ aws_security_group.project1_sg.id ]
   key_name = aws_key_pair.project1_keypair.id
+  associate_public_ip_address = "true"
   tags = {
     Name = "project1_instance"
   }
@@ -127,52 +113,9 @@ resource "aws_security_group" "project1_sg" {
 }
 
 
-# Variables Block (configure all the variables)
-variable "key_pair_name" {
-  description = " the key name for my keypair"
-  type = string  
-}
-
-variable "public_key" {
-  description = "The public key for my keypair"
-  type = string
-  
-}
-
-variable "sg_ingress_rules" {
-  description = "ingress security group rules"
-  type = map(object({
-    description = string
-    from_port   = number
-    to_port     = number
-    protocol    = string
-    cidr_blocks = list(string)
-  }))  
-}
-variable "instance_type" {
-  description = "The instance type to use for the EC2 instance"
-  type = list(string) 
-  
-}
-  
-variable "vpc_cidr" {
-  description = "cidr of our vpc"
-  type        = string
-}
-
-variable "subnets_cidr" {
-  description = "cidr block of our subnets"
-  type = map(string)
-    
-}
-
-variable "aws_region" {
-  description = "the aws region to deploy the infrastructure in"
-  type = string  
-}
 
 
-# Declare the data source for ami
+# data source block (configure the data sources)
 data "aws_ami" "linux_ami" {
   most_recent = true
   filter {
@@ -187,6 +130,8 @@ data "aws_ami" "linux_ami" {
 data "aws_availability_zones" "az" {
   state = "available"
 }
+
+
 
 
 
