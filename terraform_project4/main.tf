@@ -1,19 +1,4 @@
 
-# Terraform Block (Define the required provider, his source and the provider version)
-terraform {
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 4.0"
-    }
-  }
-}
-# Provider Block (Define the aws Provider and the region)
-provider "aws" {
-  region = var.aws_region
-}
-# Resources Block (configure all the resources)
-
 # Define the vpc with the cidr
 resource "aws_vpc" "project1_vpc" {
   cidr_block       = var.vpc_cidr
@@ -82,14 +67,17 @@ resource "aws_route_table" "project1_pub_rt" {
 
 # The EC2 instance
 resource "aws_instance" "project1_instance" {
+  count = 3
   subnet_id = aws_subnet.project1_pub_subnet1.id
+  
   instance_type = var.instance_type[1]
+
   ami = data.aws_ami.linux_ami.id 
   vpc_security_group_ids = [ aws_security_group.project1_sg.id ]
   key_name = aws_key_pair.project1_keypair.id
   associate_public_ip_address = "true"
   tags = {
-    Name = "project1_instance"
+    Name = "project1-${var.aws_region}-${count.index+1}"
   }
 
   user_data = <<-EOF
@@ -98,41 +86,18 @@ resource "aws_instance" "project1_instance" {
   yum install -y httpd.x86_64
   systemctl start httpd.service
   systemctl enable httpd.service
-  echo "WELCOME TO TERRAFORM CLASS
-   You successfully access Joseph Mbatchou web page launched via Terraform code.
-    Welcome here and we hope you will enjoy coding with Terraform!" > /var/www/html/index.html
+  echo "WELCOME TO THIS TERRAFOM PROJECT. You successfully access Ivan Minang web page" > /var/www/html/index.html
   EOF
+
+#   tags = {
+#     Name = "project1_instance-${var.aws_region}"
+#   }
 }
 
 resource "aws_key_pair" "project1_keypair" {
   key_name = var.key_pair_name
   public_key = var.public_key
   
-}
-
-resource "aws_network_acl" "my_nacl" {
-  vpc_id = aws_vpc.project1_vpc.id
-  subnet_ids = local.subnets
-
-  egress {
-    rule_no = 100
-    protocol    = "all"
-    action      = "allow"
-    cidr_block  = "0.0.0.0/0"
-    from_port   = 0
-    to_port     = 0
-  }
-  ingress {
-    rule_no = 100
-    protocol    = "all"
-    action      = "allow"
-    cidr_block  = "0.0.0.0/0"
-    from_port   = 0
-    to_port     = 0
-  }
-  tags = {
-    "Name" = "my_nacl"
-  }
 }
 
 resource "aws_security_group" "project1_sg" {
@@ -164,52 +129,9 @@ resource "aws_security_group" "project1_sg" {
 }
 
 
-# Variables Block (configure all the variables)
-variable "key_pair_name" {
-  description = " the key name for my keypair"
-  type = string  
-}
-
-variable "public_key" {
-  description = "The public key for my keypair"
-  type = string
-  
-}
-
-variable "sg_ingress_rules" {
-  description = "ingress security group rules"
-  type = map(object({
-    description = string
-    from_port   = number
-    to_port     = number
-    protocol    = string
-    cidr_blocks = list(string)
-  }))  
-}
-variable "instance_type" {
-  description = "The instance type to use for the EC2 instance"
-  type = list(string) 
-  
-}
-  
-variable "vpc_cidr" {
-  description = "cidr of our vpc"
-  type        = string
-}
-
-variable "subnets_cidr" {
-  description = "cidr block of our subnets"
-  type = map(string)
-    
-}
-
-variable "aws_region" {
-  description = "the aws region to deploy the infrastructure in"
-  type = string  
-}
 
 
-# Declare the data source for ami
+# data source block (configure the data sources)
 data "aws_ami" "linux_ami" {
   most_recent = true
   filter {
@@ -226,8 +148,19 @@ data "aws_availability_zones" "az" {
 }
 
 locals {
-  subnets =  [ aws_subnet.project1_pub_subnet1.id, aws_subnet.project1_pub_subnet2.id ]
+  # Group all common tags
+  common_tags = {
+    Name = "Project1-${var.aws_region}"
+    Company = "Cloudspace"
+    Project = var.project
+    Region = var.aws_region
+    Department = var.department
+    Contact_email = var.contact_email
+    Billing_code = "${var.department}-${var.contact_email}"
+  }
 }
+
+
 
 
 

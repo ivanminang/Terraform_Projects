@@ -67,15 +67,18 @@ resource "aws_route_table" "project1_pub_rt" {
 
 # The EC2 instance
 resource "aws_instance" "project1_instance" {
+  # count = 3
   subnet_id = aws_subnet.project1_pub_subnet1.id
   instance_type = var.instance_type[1]
   ami = data.aws_ami.linux_ami.id 
   vpc_security_group_ids = [ aws_security_group.project1_sg.id ]
   key_name = aws_key_pair.project1_keypair.id
   associate_public_ip_address = "true"
-  tags = {
-    Name = "project1_instance"
-  }
+  tags = local.common_tags
+
+#   tags = {
+#     Name = "project1_instance-${var.aws_region}"
+#   }
 }
 
 resource "aws_key_pair" "project1_keypair" {
@@ -129,6 +132,19 @@ data "aws_ami" "linux_ami" {
 # Declare the data source for AZ
 data "aws_availability_zones" "az" {
   state = "available"
+}
+
+locals {
+  # Group all common tags
+  common_tags = {
+    Name = "Project1-${var.aws_region}"
+    Company = "Cloudspace"
+    Project = var.project
+    Region = var.aws_region
+    Department = var.department
+    Contact_email = var.contact_email
+    Billing_code = "${var.department}-${var.contact_email}"
+  }
 }
 
 
