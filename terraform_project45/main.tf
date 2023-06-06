@@ -87,6 +87,22 @@ resource "aws_route_table" "project4_pub_rt" {
   }
 }
 
+resource "aws_route_table_association" "rt_ass1" {
+  subnet_id      = aws_subnet.pub_subnet1.id
+  route_table_id = aws_route_table.project4_pub_rt.id
+}
+
+resource "aws_route_table_association" "rt_ass2" {
+  subnet_id      = aws_subnet.pub_subnet2.id
+  route_table_id = aws_route_table.project4_pub_rt.id
+}
+
+resource "aws_route_table_association" "rt_ass3" {
+  subnet_id      = aws_subnet.pub_subnet3.id
+  route_table_id = aws_route_table.project4_pub_rt.id
+}
+
+
 # The EC2 instance
 resource "aws_instance" "linux_server" {
   count = var.my_count
@@ -94,18 +110,16 @@ resource "aws_instance" "linux_server" {
   instance_type = var.instance_type["us-west-2a"]
   ami = data.aws_ami.linux_ami.id 
   vpc_security_group_ids = [ aws_security_group.project4_sg.id ]
-  key_name = aws_key_pair.project4_keypair.id
+  key_name = var.key_pair_name
   associate_public_ip_address = "true"
 
   user_data = <<-EOF
-  #!/bin/bash
-  sudo yum update -y
-  sudo yum install -y httpd.x86_64
-  sudo systemctl start httpd.service
-  sudo systemctl enable httpd.service
-  echo "WELCOME TO TERRAFORM CLASS
-   You successfully access Joseph Mbatchou web page launched via Terraform code.
-    Welcome here and we hope you will enjoy coding with Terraform!" > /var/www/html/index.html
+    #!/bin/bash
+    yum update -y
+    yum install -y httpd
+    systemctl enable httpd
+    systemctl start httpd
+    echo "Hello from Terraform!" > /var/www/html/index.html
   EOF
 
   tags = {
@@ -114,11 +128,11 @@ resource "aws_instance" "linux_server" {
 
 }
 
-resource "aws_key_pair" "project4_keypair" {
-  key_name = var.key_pair_name
-  public_key = var.public_key
+# resource "aws_key_pair" "terraform_keypair" {
+#   key_name = var.key_pair_name
+#   public_key = var.public_key
   
-}
+# }
 
 
 

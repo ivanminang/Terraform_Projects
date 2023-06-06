@@ -1,12 +1,18 @@
 
 # Variables Block (configure all the variables)
-variable "key_pair_name" {
-  description = " the key name for my keypair"
-  type = string  
-}
+# variable "key_pair_name" {
+#   description = " the key name for my keypair"
+#   type = string  
+# }
 
-variable "public_key" {
-  description = "The public key for my keypair"
+# variable "public_key" {
+#   description = "The public key for my keypair"
+#   type = string
+  
+# }
+
+variable "key_pair_name" {
+  description = "The name of my keypair"
   type = string
   
 }

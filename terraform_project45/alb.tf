@@ -5,10 +5,10 @@ resource "aws_lb_target_group" "alb_tg" {
   protocol   = var.protocols[0]
   vpc_id     = aws_vpc.project4_vpc.id
 
-  stickiness {
-    enabled = false
-    type    = "lb_cookie"
-  }
+  # stickiness {
+  #   enabled = false
+  #   type    = "lb_cookie"
+  # }
 
   health_check {
     enabled             = true

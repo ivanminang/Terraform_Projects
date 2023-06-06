@@ -57,57 +57,30 @@ resource "aws_security_group" "alb_sg" {
   }
 }
 
-resource "aws_security_group_rule" "ingress_alb_http_traffic" {
-  type                     = "ingress"
-  from_port                = var.port_number[0]
-  to_port                  = var.port_number[0]
-  protocol                 = var.protocol_type
-  security_group_id        = aws_security_group.project4_sg.id
-  source_security_group_id = aws_security_group.alb_sg.id
-}
-
-resource "aws_security_group_rule" "ingress_alb_https_traffic" {
-  type                     = "ingress"
-  from_port                = var.port_number[1]
-  to_port                  = var.port_number[1]
-  protocol                 = var.protocol_type
-  security_group_id        = aws_security_group.project4_sg.id
-  source_security_group_id = aws_security_group.alb_sg.id
-}
-
-resource "aws_security_group_rule" "egress_alb_http_traffic" {
-  type                     = "egress"
-  from_port                = var.port_number[0]
-  to_port                  = var.port_number[0]
-  protocol                 = var.protocol_type
-  security_group_id        = aws_security_group.project4_sg.id
-  source_security_group_id = aws_security_group.alb_sg.id
-}
-
-resource "aws_security_group_rule" "egress_alb_https_traffic" {
-  type                     = "egress"
-  from_port                = var.port_number[1]
-  to_port                  = var.port_number[1]
-  protocol                 = var.protocol_type
-  security_group_id        = aws_security_group.project4_sg.id
-  source_security_group_id = aws_security_group.alb_sg.id
-}
-
-
-
-
-
-
-
-
-
-
-
-# resource "aws_security_group_rule" "egress_alb_health_check" {
-#   type                     = "egress"
-#   from_port                = 80
-#   to_port                  = 80
-#   protocol                 = "tcp"
+# resource "aws_security_group_rule" "ingress_http_traffic" {
+#   type                     = "ingress"
+#   from_port                = var.port_number[0]
+#   to_port                  = var.port_number[0]
+#   protocol                 = var.protocol_type
+#   cidr_blocks = ["0.0.0.0/0"]
 #   security_group_id        = aws_security_group.project4_sg.id
-#   source_security_group_id = aws_security_group.alb_sg.id
 # }
+
+resource "aws_security_group_rule" "ingress_http_traffic" {
+  type                     = "ingress"
+  from_port                = var.port_number[0]
+  to_port                  = var.port_number[0]
+  protocol                 = var.protocol_type
+  security_group_id        = aws_security_group.project4_sg.id
+  source_security_group_id = aws_security_group.alb_sg.id
+}
+
+resource "aws_security_group_rule" "ingress_https_traffic" {
+  type                     = "ingress"
+  from_port                = var.port_number[1]
+  to_port                  = var.port_number[1]
+  protocol                 = var.protocol_type
+  security_group_id        = aws_security_group.project4_sg.id
+  source_security_group_id = aws_security_group.alb_sg.id
+}
+

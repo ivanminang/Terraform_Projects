@@ -23,3 +23,18 @@ resource "aws_network_acl" "my_nacl" {
     "Name" = "my_nacl"
   }
 }
+
+resource "aws_network_acl_association" "nacl_ass1" {
+  network_acl_id = aws_network_acl.my_nacl.id
+  subnet_id      = aws_subnet.pub_subnet1.id
+}
+
+resource "aws_network_acl_association" "nacl_ass2" {
+  network_acl_id = aws_network_acl.my_nacl.id
+  subnet_id      = aws_subnet.pub_subnet2.id
+}
+
+resource "aws_network_acl_association" "nacl_ass3" {
+  network_acl_id = aws_network_acl.my_nacl.id
+  subnet_id      = aws_subnet.pub_subnet3.id
+}
