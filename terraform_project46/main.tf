@@ -9,7 +9,7 @@ resource "aws_vpc" "my_vpc" {
 
 # # *********************public subnets**************************************************
 resource "aws_subnet" "pub_subnets" {   
-  count             = var.my_count  
+  count             = var.my_sub_count  
   vpc_id            = aws_vpc.my_vpc.id
   cidr_block        = var.pub_subnets_cidr[count.index]
   availability_zone = var.aws_availability_zones[count.index]
@@ -19,7 +19,7 @@ resource "aws_subnet" "pub_subnets" {
 }
 #************************private Subnets**************************************************
 resource "aws_subnet" "priv_subnets" {   
-  count             = var.my_count  
+  count             = var.my_sub_count  
   vpc_id            = aws_vpc.my_vpc.id
   cidr_block        = var.priv_subnets_cidr[count.index]
   availability_zone = var.aws_availability_zones[count.index]
@@ -242,6 +242,7 @@ resource "aws_route_table_association" "rt_ass3" {
 
 resource "aws_lb_target_group" "myalb_tg" {
   name       = "myalb-tg"
+  count = length(aws_instance.linux_server[*].id) > 2 ? 1:0
   port       = 80
   protocol   = "HTTP"
   vpc_id     = aws_vpc.my_vpc.id
@@ -267,12 +268,13 @@ resource "aws_lb_target_group" "myalb_tg" {
 
 resource "aws_lb_listener" "alb_listener" {
   load_balancer_arn = aws_lb.app_lb[0].arn
+  count = length(aws_instance.linux_server[*].id) > 2 ? 1:0
   port              = "80"
   protocol          = "HTTP"
-
+  
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.myalb_tg.arn
+    target_group_arn = aws_lb_target_group.myalb_tg[count.index].arn
   }
 }
 
@@ -295,7 +297,7 @@ resource "aws_lb" "app_lb" {
 
 resource "aws_lb_target_group_attachment" "alb_tg_at" {
   count = var.my_count
-  target_group_arn = aws_lb_target_group.myalb_tg.arn
+  target_group_arn = aws_lb_target_group.myalb_tg[0].arn
   target_id        = aws_instance.linux_server[count.index].id
   port             = 80
   

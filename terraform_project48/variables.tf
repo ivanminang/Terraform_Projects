@@ -12,11 +12,6 @@ variable "my_count" {
   description = "the number of resources to deploy"
   type = string
 }
-variable "my_sub_count" {
-  description = "the number of resources to deploy"
-  type = string
-}
-
 
 variable "pub_subnets_cidr" {
   description = "cidr block of our public subnets"
